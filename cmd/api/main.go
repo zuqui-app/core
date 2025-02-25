@@ -9,9 +9,10 @@ import (
 	"strconv"
 	"syscall"
 	"time"
-	"zuqui-core/internal/server"
 
 	_ "github.com/joho/godotenv/autoload"
+
+	"zuqui-core/internal/server"
 )
 
 func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
@@ -39,7 +40,6 @@ func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
 }
 
 func main() {
-
 	server := server.New()
 
 	server.RegisterFiberRoutes()

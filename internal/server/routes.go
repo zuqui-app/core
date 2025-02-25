@@ -15,8 +15,7 @@ func (s *FiberServer) RegisterFiberRoutes() {
 		MaxAge:           300,
 	}))
 
-	s.App.Get("/", s.HelloWorldHandler)
-
+	s.App.Post("/create-quiz", s.CreateQuizHandler)
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
