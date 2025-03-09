@@ -13,6 +13,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"zuqui-core/internal/server"
+	"zuqui-core/internal/server/routes"
 )
 
 func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
@@ -41,8 +42,7 @@ func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
 
 func main() {
 	server := server.New()
-
-	server.RegisterFiberRoutes()
+	routes.RegisterFiberRoutes(server)
 
 	// Create a done channel to signal when the shutdown is complete
 	done := make(chan bool, 1)
