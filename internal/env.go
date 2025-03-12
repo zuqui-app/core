@@ -12,7 +12,13 @@ type Environment struct {
 	PORT    int    `env:"PORT,required"`
 	APP_ENV string `env:"APP_ENV,required"`
 
+	OTP_SECRET string `env:"OTP_SECRET,required"`
+
 	GEMINI_API_KEY string `env:"GEMINI_API_KEY,required"`
+
+	RESEND_API_KEY string `env:"RESEND_API_KEY,required"`
+
+	UPSTASH_REDIS_URI string `env:"UPSTASH_REDIS_URI,required"`
 }
 
 var Env Environment
