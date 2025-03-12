@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 
-	genaiutils "zuqui-core/internal/genai"
+	"zuqui-core/internal/services"
 )
 
 func GenerateBinary(
@@ -16,7 +16,7 @@ func GenerateBinary(
 	schema *genai.Schema,
 	prompt string,
 ) (string, error) {
-	model := genaiutils.GenaiClient.GenerativeModel("gemini-1.5-flash")
+	model := services.GenaiClient.GenerativeModel("gemini-1.5-flash")
 	model.SetTemperature(1)
 	model.SetTopK(40)
 	model.SetTopP(0.95)
@@ -46,7 +46,7 @@ func GenerateSCQ(
 	schema *genai.Schema,
 	prompt string,
 ) (string, error) {
-	model := genaiutils.GenaiClient.GenerativeModel("gemini-1.5-flash")
+	model := services.GenaiClient.GenerativeModel("gemini-1.5-flash")
 	model.SetTemperature(1)
 	model.SetTopK(40)
 	model.SetTopP(0.95)

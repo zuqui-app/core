@@ -14,6 +14,7 @@ import (
 
 	"zuqui-core/internal/server"
 	"zuqui-core/internal/server/routes"
+	"zuqui-core/internal/services"
 )
 
 func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
@@ -35,6 +36,8 @@ func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
 	}
 
 	log.Println("Server exiting")
+
+	services.CloseServices()
 
 	// Notify the main goroutine that the shutdown is complete
 	done <- true

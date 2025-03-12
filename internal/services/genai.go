@@ -1,23 +1,22 @@
-package genai
+package services
 
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
+
+	"zuqui-core/internal"
 )
 
 var GenaiClient *genai.Client
 
 func init() {
-	apiKey, ok := os.LookupEnv("GEMINI_API_KEY")
-	if !ok {
-		log.Fatalln("Environment variable GEMINI_API_KEY not set")
-	}
-
-	client, err := genai.NewClient(context.Background(), option.WithAPIKey(apiKey))
+	client, err := genai.NewClient(
+		context.Background(),
+		option.WithAPIKey(internal.Env.GEMINI_API_KEY),
+	)
 	if err != nil {
 		log.Fatalf("Error creating genai client: %v", err)
 	}
