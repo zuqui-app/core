@@ -3,6 +3,7 @@ module zuqui-core
 go 1.24.0
 
 require (
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/google/generative-ai-go v0.19.0
 	github.com/joho/godotenv v1.5.1
