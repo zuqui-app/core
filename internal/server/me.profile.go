@@ -1,7 +1,7 @@
-package me
+package server
 
 import "github.com/gofiber/fiber/v2"
 
-func Usage(c *fiber.Ctx) error {
+func (s *FiberServer) MeProfile(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNotImplemented)
 }

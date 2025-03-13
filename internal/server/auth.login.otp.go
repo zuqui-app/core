@@ -1,4 +1,4 @@
-package auth
+package server
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"zuqui-core/internal/email"
-	"zuqui-core/internal/services"
 )
 
 type LoginOTPInput struct {
@@ -18,7 +17,7 @@ type LoginOTPInput struct {
 }
 
 // Login with email (or sms) OTP
-func LoginOTP(c *fiber.Ctx) error {
+func (s *FiberServer) AuthLoginOTP(c *fiber.Ctx) error {
 	// Take email address or otp
 	input := new(LoginOTPInput)
 
@@ -35,12 +34,12 @@ func LoginOTP(c *fiber.Ctx) error {
 	if input.OTP == "" {
 		otp := createOTP()
 
-		if err := services.RedisClient.Set(context.Background(), input.Email, otp, 10*time.Minute).Err(); err != nil {
+		if err := s.redis.Set(context.Background(), input.Email, otp, 10*time.Minute).Err(); err != nil {
 			log.Println(err)
 			return fiber.NewError(fiber.StatusInternalServerError)
 		}
 
-		sent, err := email.SendOTPEmail(input.Email, email.SendOTPProps{
+		sent, err := s.email.SendOTPEmail(input.Email, email.SendOTPProps{
 			Username: "", // get user if exist
 			OTP:      otp,
 		})
@@ -54,7 +53,7 @@ func LoginOTP(c *fiber.Ctx) error {
 	}
 
 	// Verify otp
-	data := services.RedisClient.Get(context.Background(), input.Email)
+	data := s.redis.Get(context.Background(), input.Email)
 
 	if input.OTP != data.Val() {
 		return c.SendStatus(fiber.StatusUnauthorized)

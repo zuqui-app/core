@@ -4,11 +4,9 @@ import (
 	"fmt"
 
 	"github.com/google/generative-ai-go/genai"
-
-	"zuqui-core/internal/quiz"
 )
 
-const BinaryQuestionThoughtProcess = "### Thought Process for Binary Question ###\n" +
+const binaryQuestionThoughtProcess = "### Thought Process for Binary Question ###\n" +
 	"1. Identify the key knowledge point to be tested.\n" +
 	"2. Select a specific aspect of the topic to focus on.\n" +
 	"3. Craft a True/False question that targets that aspect, ensuring it has a clear, singular correct answer.\n"
@@ -21,11 +19,11 @@ type BinaryConfig struct {
 	Amount        int    `json:"amount"        xml:"amount"        form:"amount"`
 }
 
-func GetBinaryQuestionPrompt(config BinaryConfig) string {
+func (g *Generator) GetBinaryQuestionPrompt(config BinaryConfig) string {
 	return fmt.Sprintf(
 		"Generate True-or-False questions that test knowledge of a specific language.\n"+
-			quiz.DesirableQuizCriteria+
-			BinaryQuestionThoughtProcess+
+			g.prompt.QuizStandard()+
+			binaryQuestionThoughtProcess+
 			"### Quiz Configurations ###\n"+
 			"Language: %s\n"+
 			"Category: %s\n"+
@@ -40,7 +38,7 @@ func GetBinaryQuestionPrompt(config BinaryConfig) string {
 	)
 }
 
-func GetBinaryQuestionGenAISchema() *genai.Schema {
+func (g *Generator) GetBinaryQuestionGenAISchema() *genai.Schema {
 	return &genai.Schema{
 		Type: genai.TypeArray,
 		Items: &genai.Schema{
@@ -80,7 +78,7 @@ func GetBinaryQuestionGenAISchema() *genai.Schema {
 	}
 }
 
-const SingleChoiceQuestionThoughtProcess = "### Thought Process of Individual Question ###\n" +
+const singleChoiceQuestionThoughtProcess = "### Thought Process of Individual Question ###\n" +
 	"1. Identify a knowledge point related to the quiz configuration.\n" +
 	"2. Choose an aspect to focus the question on.\n" +
 	"3. Formulate a question that tests the knowledge within that aspect, ensuring only one correct and definite answer.\n" +
@@ -95,11 +93,11 @@ type SCQConfig struct {
 	Amount        int    `json:"amount"        xml:"amount"        form:"amount"`
 }
 
-func GetSingleChoiceQuestionPrompt(config SCQConfig) string {
+func (g *Generator) GetSingleChoiceQuestionPrompt(config SCQConfig) string {
 	return fmt.Sprintf(
 		"Generate Single-Choice questions that tests knowledge of a specific language\n"+
-			quiz.DesirableQuizCriteria+
-			BinaryQuestionThoughtProcess+
+			g.prompt.QuizStandard()+
+			binaryQuestionThoughtProcess+
 			"### Quiz Configurations ###\n"+
 			"Language: %s\n"+
 			"Category: %s\n"+
@@ -116,7 +114,7 @@ func GetSingleChoiceQuestionPrompt(config SCQConfig) string {
 	)
 }
 
-func GetSingleChoiceQuestionGenAISchema() *genai.Schema {
+func (g *Generator) GetSingleChoiceQuestionGenAISchema() *genai.Schema {
 	return &genai.Schema{
 		Type: genai.TypeArray,
 		Items: &genai.Schema{

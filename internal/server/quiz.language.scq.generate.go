@@ -1,30 +1,30 @@
-package language
+package server
 
 import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 
-	"zuqui-core/internal/quiz"
 	"zuqui-core/internal/quiz/language"
 )
 
-func GenerateBinary(c *fiber.Ctx) error {
-	config := new(language.BinaryConfig)
+func (s *FiberServer) LanguageGenerateSCQ(c *fiber.Ctx) error {
+	config := new(language.SCQConfig)
 
 	if err := c.BodyParser(config); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "malformed quiz setting")
 	}
 
-	jsonStr, err := language.GenerateBinary(
-		quiz.QuizGeneratorSystemPrompt,
-		language.GetBinaryQuestionGenAISchema(),
-		language.GetBinaryQuestionPrompt(
-			language.BinaryConfig{
+	jsonStr, err := s.quiz.Language.GenerateSCQ(
+		s.quiz.Prompt.SystemPrompt(),
+		s.quiz.Language.GetSingleChoiceQuestionGenAISchema(),
+		s.quiz.Language.GetSingleChoiceQuestionPrompt(
+			language.SCQConfig{
 				Language:      "German",
 				Category:      "Grammar",
 				Specification: "B2",
-				Difficulty:    "Hard",
+				Difficulty:    "Medium",
+				ChoiceAmount:  4,
 				Amount:        5,
 			},
 		),

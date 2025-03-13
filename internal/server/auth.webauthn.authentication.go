@@ -1,9 +1,9 @@
-package auth
+package server
 
 import "github.com/gofiber/fiber/v2"
 
 // Authenticate with Passkey
-func WebAuthnAuthentication(c *fiber.Ctx) error {
+func (s *FiberServer) WebAuthnAuthentication(c *fiber.Ctx) error {
 	// challenge
 	// if challenge success
 	//   find user with corresponding public key

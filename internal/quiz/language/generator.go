@@ -8,15 +8,24 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 
-	"zuqui-core/internal/services"
+	"zuqui-core/internal/quiz/prompt"
 )
 
-func GenerateBinary(
+type Generator struct {
+	ai     *genai.Client
+	prompt *prompt.Prompt
+}
+
+func New(ai *genai.Client, prompt *prompt.Prompt) *Generator {
+	return &Generator{ai, prompt}
+}
+
+func (g *Generator) GenerateBinary(
 	systemPrompt string,
 	schema *genai.Schema,
 	prompt string,
 ) (string, error) {
-	model := services.GenaiClient.GenerativeModel("gemini-1.5-flash")
+	model := g.ai.GenerativeModel("gemini-1.5-flash")
 	model.SetTemperature(1)
 	model.SetTopK(40)
 	model.SetTopP(0.95)
@@ -41,12 +50,12 @@ func GenerateBinary(
 	return jsonStr, nil
 }
 
-func GenerateSCQ(
+func (g *Generator) GenerateSCQ(
 	systemPrompt string,
 	schema *genai.Schema,
 	prompt string,
 ) (string, error) {
-	model := services.GenaiClient.GenerativeModel("gemini-1.5-flash")
+	model := g.ai.GenerativeModel("gemini-1.5-flash")
 	model.SetTemperature(1)
 	model.SetTopK(40)
 	model.SetTopP(0.95)

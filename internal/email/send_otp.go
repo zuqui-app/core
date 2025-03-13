@@ -5,8 +5,6 @@ import (
 	"html/template"
 
 	"github.com/resend/resend-go/v2"
-
-	"zuqui-core/internal/services"
 )
 
 type SendOTPProps struct {
@@ -14,7 +12,10 @@ type SendOTPProps struct {
 	OTP      string
 }
 
-func SendOTPEmail(email string, props SendOTPProps) (sent *resend.SendEmailResponse, error error) {
+func (s *EmailService) SendOTPEmail(
+	email string,
+	props SendOTPProps,
+) (sent *resend.SendEmailResponse, error error) {
 	temp, err := template.ParseFiles("internal/email/otp_template.html")
 	if err != nil {
 		return nil, err
@@ -33,7 +34,7 @@ func SendOTPEmail(email string, props SendOTPProps) (sent *resend.SendEmailRespo
 		Html:    html,
 	}
 
-	sent, err = services.ResendClient.Emails.Send(params)
+	sent, err = s.client.Emails.Send(params)
 	if err != nil {
 		return nil, err
 	}
