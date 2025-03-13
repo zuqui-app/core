@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/google/generative-ai-go/genai"
 	"github.com/redis/go-redis/v9"
 	"github.com/resend/resend-go/v2"
@@ -34,6 +35,7 @@ func New(resend *resend.Client, genai *genai.Client, redis *redis.Client) *Fiber
 }
 
 func (s *FiberServer) RegisterFiberRoutes() {
+	s.App.Use(logger.New())
 	s.App.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS,PATCH",
