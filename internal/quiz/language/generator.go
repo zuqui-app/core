@@ -25,7 +25,7 @@ func (g *Generator) GenerateBinary(
 	schema *genai.Schema,
 	prompt string,
 ) (string, error) {
-	model := g.ai.GenerativeModel("gemini-1.5-flash")
+	model := g.ai.GenerativeModel("gemini-2.0-flash-lite")
 	model.SetTemperature(1)
 	model.SetTopK(40)
 	model.SetTopP(0.95)
