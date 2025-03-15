@@ -8,33 +8,45 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/resend/resend-go/v2"
 
-	"zuqui-core/internal/email"
-	"zuqui-core/internal/quiz"
+	"zuqui-core/internal/repo"
+	"zuqui-core/internal/service/auth"
+	"zuqui-core/internal/service/email"
+	"zuqui-core/internal/service/quiz"
 )
 
-type FiberServer struct {
+type App struct {
 	*fiber.App
-	email *email.EmailService
-	quiz  *quiz.Generator
-	redis *redis.Client
+
+	repo  *repo.Repo
+	auth  auth.Service
+	email email.Service
+	quiz  *quiz.Service
 }
 
-func New(resend *resend.Client, genai *genai.Client, redis *redis.Client) *FiberServer {
-	server := &FiberServer{
+func New(
+	repo *repo.Repo,
+	auth auth.Service,
+	email email.Service,
+	quiz *quiz.Service,
+) *App {
+	server := &App{
 		App: fiber.New(fiber.Config{
-			ServerHeader: "zuqui-core",
-			AppName:      "zuqui-core",
+			ServerHeader: "zuqui",
+			AppName:      "zuqui",
 		}),
 
-		email: email.New(resend),
-		quiz:  quiz.New(genai),
-		redis: redis,
+		repo:  repo,
+		auth:  auth,
+		email: email,
+		quiz:  quiz,
 	}
+
+	server.registerRoutes()
 
 	return server
 }
 
-func (s *FiberServer) RegisterFiberRoutes() {
+func (s *App) registerRoutes() {
 	s.App.Use(logger.New())
 	s.App.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
@@ -52,6 +64,8 @@ func (s *FiberServer) RegisterFiberRoutes() {
 
 	authGroup := s.Group("/auth")
 	authGroup.Post("/login/otp", s.AuthLoginOTP)
+	authGroup.Post("/onboard", s.AuthOnboard)
+	authGroup.Post("/token/refresh", s.AuthTokenRefresh)
 	authGroup.Post("/webauthn/registration", s.WebAuthnRegistration)
 	authGroup.Post("/webauthn/authentication", s.WebAuthnAuthentication)
 

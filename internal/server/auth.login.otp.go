@@ -1,14 +1,13 @@
 package server
 
 import (
-	"context"
+	"bytes"
+	"html/template"
 	"log"
-	"math/rand/v2"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 
-	"zuqui-core/internal/email"
+	"zuqui-core/internal/service/email"
 )
 
 type LoginOTPInput struct {
@@ -17,7 +16,7 @@ type LoginOTPInput struct {
 }
 
 // Login with email (or sms) OTP
-func (s *FiberServer) AuthLoginOTP(c *fiber.Ctx) error {
+func (a *App) AuthLoginOTP(c *fiber.Ctx) error {
 	// Take email address or otp
 	input := new(LoginOTPInput)
 
@@ -30,16 +29,15 @@ func (s *FiberServer) AuthLoginOTP(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "email is required")
 	}
 
-	// Send otp
+	// Send OTP
 	if input.OTP == "" {
-		otp := createOTP()
-
-		if err := s.redis.Set(context.Background(), input.Email, otp, 10*time.Minute).Err(); err != nil {
+		otp, err := a.auth.CreateOTP(input.Email)
+		if err != nil {
 			log.Println(err)
 			return fiber.NewError(fiber.StatusInternalServerError)
 		}
 
-		sent, err := s.email.SendOTPEmail(input.Email, email.SendOTPProps{
+		sentId, err := SendOTPEmail(a.email, input.Email, SendOTPProps{
 			Username: "", // get user if exist
 			OTP:      otp,
 		})
@@ -47,15 +45,15 @@ func (s *FiberServer) AuthLoginOTP(c *fiber.Ctx) error {
 			log.Println(err)
 			return fiber.NewError(fiber.StatusInternalServerError)
 		}
-		log.Printf("OTP Email sent: %s\n", sent.Id)
+		log.Printf("OTP Email sent: %s\n", sentId)
 
 		return c.SendStatus(fiber.StatusNoContent)
 	}
 
-	// Verify otp
-	data := s.redis.Get(context.Background(), input.Email)
+	// Verify OTP
+	verified := a.auth.VerifyOTP(input.Email, input.OTP)
 
-	if input.OTP != data.Val() {
+	if !verified {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
@@ -68,12 +66,38 @@ func (s *FiberServer) AuthLoginOTP(c *fiber.Ctx) error {
 	return c.SendString("tokens")
 }
 
-func createOTP() string {
-	chars := "ABCDEFGHJKLMNPQRTUVWXY346789" // Without O, 0, I, 1, S, 5, Z, 2
-	r := make([]byte, 6)
-	for i := range r {
-		r[i] = chars[rand.IntN(len(chars))]
+type SendOTPProps struct {
+	Username string
+	OTP      string
+}
+
+func SendOTPEmail(
+	s email.Service,
+	to string,
+	props SendOTPProps,
+) (string, error) {
+	temp, err := template.ParseFiles("internal/service/email/templates/otp_template.html")
+	if err != nil {
+		return "", err
 	}
 
-	return string(r)
+	var buf bytes.Buffer
+	if err := temp.Execute(&buf, props); err != nil {
+		return "", err
+	}
+
+	html := buf.String()
+	req := &email.EmailRequest{
+		From:    "Zuqui <zuqui@nichtsam.com>",
+		To:      []string{to},
+		Subject: "🔑 Here's your OTP for Zuqui!",
+		Html:    html,
+	}
+
+	sent, err := s.SendEmail(req)
+	if err != nil {
+		return "", err
+	}
+
+	return sent.Id, nil
 }

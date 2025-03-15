@@ -19,6 +19,8 @@ type Environment struct {
 	RESEND_API_KEY string `env:"RESEND_API_KEY,required"`
 
 	UPSTASH_REDIS_URI string `env:"UPSTASH_REDIS_URI,required"`
+
+	DATABASE_URL string `env:"DATABASE_URL,required"`
 }
 
 var Env Environment
