@@ -2,6 +2,6 @@ package server
 
 import "github.com/gofiber/fiber/v2"
 
-func (s *FiberServer) MathGenerateBinary(c *fiber.Ctx) error {
-	return nil
+func (s *App) MathGenerateBinary(c *fiber.Ctx) error {
+	return c.SendStatus(fiber.StatusNotImplemented)
 }
