@@ -11,13 +11,13 @@ import (
 )
 
 func (s *App) LanguageGenerateBinary(c *fiber.Ctx) error {
-	config := new(quiz.LanguageBinaryConfig)
+	var config quiz.LanguageBinaryConfig
 
-	if err := c.BodyParser(config); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "malformed quiz setting")
+	if err := c.BodyParser(&config); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "malformed request")
 	}
 
-	questions, err := s.quiz.Language.Binary(*config)
+	questions, err := s.quiz.Language.Binary(config)
 	if err != nil {
 		if errors, ok := err.(validator.ValidationErrors); ok {
 			return c.Status(fiber.StatusBadRequest).JSON(internal.ValidationErrorsToMap(errors))

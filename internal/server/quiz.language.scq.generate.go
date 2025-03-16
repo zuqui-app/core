@@ -11,13 +11,13 @@ import (
 )
 
 func (s *App) LanguageGenerateSCQ(c *fiber.Ctx) error {
-	config := new(quiz.LanguageSingleChoiceConfig)
+	var config quiz.LanguageSingleChoiceConfig
 
-	if err := c.BodyParser(config); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "malformed quiz setting")
+	if err := c.BodyParser(&config); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "malformed request")
 	}
 
-	questions, err := s.quiz.Language.SingleChoice(*config)
+	questions, err := s.quiz.Language.SingleChoice(config)
 	if err != nil {
 		if errors, ok := err.(validator.ValidationErrors); ok {
 			return c.Status(fiber.StatusBadRequest).JSON(internal.ValidationErrorsToMap(errors))

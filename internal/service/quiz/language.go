@@ -65,8 +65,6 @@ func (q *language) Binary(config LanguageBinaryConfig) (*[]BinaryQuestion, error
 		return nil, err
 	}
 
-	fmt.Println(resp.Candidates[0].Content.Parts[0])
-
 	var questions []BinaryQuestion
 	for _, part := range resp.Candidates[0].Content.Parts {
 		if txt, ok := part.(genai.Text); ok {

@@ -2,44 +2,68 @@ package server
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 
+	"zuqui-core/internal/domain"
+	"zuqui-core/internal/repo"
 	"zuqui-core/internal/service/email"
 )
 
-type LoginOTPInput struct {
+type LoginOTPRequest struct {
 	OTP   string `json:"otp"   xml:"otp"   form:"otp"`
 	Email string `json:"email" xml:"email" form:"email"`
 }
 
-// Login with email (or sms) OTP
-func (a *App) AuthLoginOTP(c *fiber.Ctx) error {
-	// Take email address or otp
-	input := new(LoginOTPInput)
+type LoginOTPResponse struct {
+	Access  string `json:"access"`
+	Refresh string `json:"refresh"`
+}
 
-	if err := c.BodyParser(input); err != nil {
+func (a *App) AuthLoginOTP(c *fiber.Ctx) error {
+	var req LoginOTPRequest
+
+	if err := c.BodyParser(&req); err != nil {
 		log.Println(err)
-		return fiber.NewError(fiber.StatusBadRequest, "malformed otp login input")
+		return fiber.NewError(fiber.StatusBadRequest, "malformed request")
 	}
 
-	if input.Email == "" {
+	if req.Email == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "email is required")
 	}
 
 	// Send OTP
-	if input.OTP == "" {
-		otp, err := a.auth.CreateOTP(input.Email)
+	if req.OTP == "" {
+		otp, err := a.auth.CreateOTP(req.Email)
 		if err != nil {
 			log.Println(err)
 			return fiber.NewError(fiber.StatusInternalServerError)
 		}
 
-		sentId, err := SendOTPEmail(a.email, input.Email, SendOTPProps{
-			Username: "", // get user if exist
-			OTP:      otp,
+		user, err := a.repo.User.GetUserByEmail(req.Email)
+		if err != nil {
+			if errors.Is(err, repo.ErrNoUser) {
+				sentId, err := SendOTPEmail(a.email, req.Email, SendOTPProps{
+					OTP: otp,
+				})
+				if err != nil {
+					log.Println(err)
+					return fiber.NewError(fiber.StatusInternalServerError)
+				}
+				log.Printf("OTP Email sent: %s\n", sentId)
+
+				return c.SendStatus(fiber.StatusNoContent)
+			}
+
+			return fiber.NewError(fiber.StatusInternalServerError)
+		}
+
+		sentId, err := SendOTPEmail(a.email, req.Email, SendOTPProps{
+			User: user,
+			OTP:  otp,
 		})
 		if err != nil {
 			log.Println(err)
@@ -51,24 +75,36 @@ func (a *App) AuthLoginOTP(c *fiber.Ctx) error {
 	}
 
 	// Verify OTP
-	verified := a.auth.VerifyOTP(input.Email, input.OTP)
+	verified := a.auth.VerifyOTP(req.Email, req.OTP)
 
 	if !verified {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	username := ""
-
-	if username == "" {
-		return c.Status(fiber.StatusConflict).SendString("onboard required")
+	user, err := a.repo.User.GetUserByEmail(req.Email)
+	if err != nil {
+		if errors.Is(err, repo.ErrNoUser) {
+			return c.Status(fiber.StatusConflict).SendString("onboard required")
+		}
+		log.Println(err)
+		return fiber.NewError(fiber.StatusInternalServerError)
 	}
 
-	return c.SendString("tokens")
+	access, refresh, err := a.auth.CreateTokenPair(user.Id)
+	if err != nil {
+		log.Println(err)
+		return fiber.NewError(fiber.StatusInternalServerError)
+	}
+
+	return c.JSON(LoginOTPResponse{
+		Access:  access,
+		Refresh: refresh,
+	})
 }
 
 type SendOTPProps struct {
-	Username string
-	OTP      string
+	User domain.User
+	OTP  string
 }
 
 func SendOTPEmail(
