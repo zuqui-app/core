@@ -4,9 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/google/generative-ai-go/genai"
-	"github.com/redis/go-redis/v9"
-	"github.com/resend/resend-go/v2"
 
 	"zuqui-core/internal/repo"
 	"zuqui-core/internal/service/auth"
@@ -56,7 +53,7 @@ func (s *App) registerRoutes() {
 		MaxAge:           300,
 	}))
 
-	quizGroup := s.Group("/quiz")
+	quizGroup := s.Group("/quiz", s.AuthMiddleware)
 	quizGroup.Post("/language/binary/generate", s.LanguageGenerateBinary)
 	quizGroup.Post("/language/scq/generate", s.LanguageGenerateSCQ)
 	quizGroup.Post("/math/binary/generate", s.MathGenerateBinary)
@@ -69,7 +66,7 @@ func (s *App) registerRoutes() {
 	authGroup.Post("/webauthn/registration", s.WebAuthnRegistration)
 	authGroup.Post("/webauthn/authentication", s.WebAuthnAuthentication)
 
-	meGroup := s.Group("/me")
+	meGroup := s.Group("/me", s.AuthMiddleware)
 	meGroup.Get("/profile", s.MeProfile)
 	meGroup.Get("/usage", s.MeUsage)
 }

@@ -13,6 +13,7 @@ type Environment struct {
 	APP_ENV string `env:"APP_ENV,required"`
 
 	OTP_SECRET string `env:"OTP_SECRET,required"`
+	JWT_SECRET string `env:"JWT_SECRET,required"`
 
 	GEMINI_API_KEY string `env:"GEMINI_API_KEY,required"`
 

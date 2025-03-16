@@ -10,7 +10,7 @@ type BinaryQuestion struct {
 	Answer        bool        `json:"answer"`
 	Specification string      `json:"specification"`
 	Difficulty    string      `json:"difficulty"`
-	Explanation   Explanation `json:"explanantion"`
+	Explanation   Explanation `json:"explanation"`
 }
 
 type SingleChoiceQuestion struct {
@@ -19,7 +19,7 @@ type SingleChoiceQuestion struct {
 	Incorrects    []string    `json:"incorrects"`
 	Specification string      `json:"specification"`
 	Difficulty    string      `json:"difficulty"`
-	Explanation   Explanation `json:"explanantion"`
+	Explanation   Explanation `json:"explanation"`
 }
 
 type MultipleChoiceQuestion struct {
