@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 
-	"zuqui-core/internal"
+	"zuqui/internal"
 )
 
 type language struct {

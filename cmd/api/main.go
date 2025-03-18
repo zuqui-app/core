@@ -17,12 +17,12 @@ import (
 	"github.com/resend/resend-go/v2"
 	"google.golang.org/api/option"
 
-	"zuqui-core/internal"
-	"zuqui-core/internal/repo"
-	"zuqui-core/internal/server"
-	"zuqui-core/internal/service/auth"
-	"zuqui-core/internal/service/email"
-	"zuqui-core/internal/service/quiz"
+	"zuqui/internal"
+	"zuqui/internal/repo"
+	"zuqui/internal/server"
+	"zuqui/internal/service/auth"
+	"zuqui/internal/service/email"
+	"zuqui/internal/service/quiz"
 )
 
 func gracefulShutdown(fiberServer *server.App, done chan bool) {
