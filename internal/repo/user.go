@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/oklog/ulid/v2"
 
-	"zuqui-core/internal/domain"
+	"zuqui/internal/domain"
 )
 
 var (

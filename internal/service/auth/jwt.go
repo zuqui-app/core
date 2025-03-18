@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/oklog/ulid/v2"
 
-	"zuqui-core/internal"
+	"zuqui/internal"
 )
 
 const (

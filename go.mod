@@ -1,4 +1,4 @@
-module zuqui-core
+module zuqui
 
 go 1.24.0
 
@@ -46,7 +46,9 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.59.0 // indirect
 	go.opencensus.io v0.24.0 // indirect

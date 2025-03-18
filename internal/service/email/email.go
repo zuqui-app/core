@@ -3,7 +3,7 @@ package email
 import (
 	"github.com/resend/resend-go/v2"
 
-	"zuqui-core/internal"
+	"zuqui/internal"
 )
 
 type Service interface {
