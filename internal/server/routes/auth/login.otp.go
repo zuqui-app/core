@@ -41,6 +41,10 @@ func AuthLoginOTP(ur repo.UserRepo, as auth.Service, es email.Service) func(c *f
 		if req.OTP == "" {
 			otp, err := as.CreateOTP(req.Email)
 			if err != nil {
+				if err, ok := err.(*auth.CooldownError); ok {
+					return c.Status(fiber.StatusTooManyRequests).SendString(err.Error())
+				}
+
 				log.Println(err)
 				return fiber.NewError(fiber.StatusInternalServerError)
 			}

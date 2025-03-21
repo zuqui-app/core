@@ -7,24 +7,53 @@ import (
 	"time"
 )
 
+func getOtpKey(key string) string {
+	return "otp:" + key
+}
+
+func getCooldownKey(key string) string {
+	return "otp_cooldown:" + key
+}
+
 func (s *service) CreateOTP(key string) (string, error) {
 	if key == "" {
 		return "", errors.New("otp key is required")
 	}
-	otp := createOTP()
 
-	return otp, s.client.Set(context.Background(), key, otp, 10*time.Minute).Err()
+	cooldownKey := getCooldownKey(key)
+	entry := s.client.TTL(context.Background(), cooldownKey)
+	err := entry.Err()
+	if err != nil {
+		return "", err
+	}
+
+	if ttl := entry.Val(); ttl > 0 {
+		return "", NewCooldownError(ttl)
+	}
+
+	otp := createOTP()
+	otpKey := getOtpKey(key)
+	if err := s.client.Set(context.Background(), otpKey, otp, 10*time.Minute).Err(); err != nil {
+		return "", err
+	}
+
+	if err := s.client.Set(context.Background(), cooldownKey, nil, 1*time.Minute).Err(); err != nil {
+		return "", err
+	}
+
+	return otp, nil
 }
 
 func (s *service) VerifyOTP(key string, otp string) bool {
-	entry := s.client.Get(context.Background(), key)
+	otpKey := getOtpKey(key)
+	entry := s.client.Get(context.Background(), otpKey)
 	if entry.Err() != nil {
 		return false
 	}
 
 	verified := otp == entry.Val()
 	if verified {
-		s.client.Del(context.Background(), key)
+		s.client.Del(context.Background(), otpKey)
 	}
 
 	return verified
