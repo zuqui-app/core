@@ -124,7 +124,26 @@ func (s *service) VerifyRefreshToken(tokenString string) (*jwt.RegisteredClaims,
 	return claims, nil
 }
 
-func (s *service) RevokeRefreshToken(tokenId string) error {
-	entry := s.client.Del(context.Background(), "refresh_token:"+tokenId)
+func (s *service) RevokeRefreshToken(tokenString string) error {
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&jwt.RegisteredClaims{},
+		func(t *jwt.Token) (any, error) {
+			if t.Method.Alg() != method.Alg() {
+				return nil, NewAuthError("Unexpected Algorithm")
+			}
+			return signingKey, nil
+		},
+	)
+	if err != nil {
+		return NewAuthError("Invalid Token").withError(err)
+	}
+
+	claims, ok := token.Claims.(*jwt.RegisteredClaims)
+	if !ok {
+		return NewAuthError("Unexpected Claims")
+	}
+
+	entry := s.client.Del(context.Background(), "refresh_token:"+claims.ID)
 	return entry.Err()
 }

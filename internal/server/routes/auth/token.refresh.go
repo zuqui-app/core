@@ -47,7 +47,7 @@ func AuthTokenRefresh(as auth.Service) func(c *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusInternalServerError)
 		}
 
-		if err = as.RevokeRefreshToken(claims.ID); err != nil {
+		if err = as.RevokeRefreshToken(req.Refresh); err != nil {
 			log.Println(err)
 			return fiber.NewError(fiber.StatusInternalServerError)
 		}

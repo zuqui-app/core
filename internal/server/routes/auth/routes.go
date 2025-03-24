@@ -26,6 +26,7 @@ func RegisterRoutes(
 
 	authGroup := router.Group("/auth", authLimiter)
 	authGroup.Post("/login/otp", AuthLoginOTP(ur, as, es))
+	authGroup.Post("/sign-out", SignOut(as))
 	authGroup.Post("/onboard", AuthOnboard(ur, as))
 	authGroup.Post("/token/refresh", AuthTokenRefresh(as))
 	authGroup.Post("/webauthn/registration", WebAuthnRegistration())
